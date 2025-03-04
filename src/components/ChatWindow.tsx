@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 
 interface Message {
   id: string;
   text: string;
-  sender: 'user' | 'system';
+  sender: 'user' | 'ai';
   timestamp: Date;
 }
 
@@ -16,37 +16,57 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ title }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Welcome to the chat! How can I help you today?',
-      sender: 'system',
+      text: 'Hello! How can I help you with your interface design today?',
+      sender: 'ai',
       timestamp: new Date()
     }
   ]);
-  const [newMessage, setNewMessage] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = () => {
-    if (newMessage.trim() === '') return;
-    
-    // Add user message
-    const userMessage: Message = {
+    if (inputValue.trim() === '') return;
+
+    const newUserMessage: Message = {
       id: Date.now().toString(),
-      text: newMessage,
+      text: inputValue,
       sender: 'user',
       timestamp: new Date()
     };
-    
-    setMessages([...messages, userMessage]);
-    setNewMessage('');
-    
-    // Simulate response after a short delay
+
+    setMessages([...messages, newUserMessage]);
+    setInputValue('');
+
+    // Simulate AI response
     setTimeout(() => {
-      const systemMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: `I received your message: "${newMessage}"`,
-        sender: 'system',
+      let responseText = '';
+      
+      if (inputValue.toLowerCase().includes('design') || inputValue.toLowerCase().includes('interface')) {
+        responseText = "I'll update the interface design based on your request. You'll see the changes in the Design tab shortly.";
+      } else if (inputValue.toLowerCase().includes('add') || inputValue.toLowerCase().includes('create')) {
+        responseText = "I'll create that component for you. Check the Design tab in a moment to see the update.";
+      } else if (inputValue.toLowerCase().includes('change') || inputValue.toLowerCase().includes('modify')) {
+        responseText = "I'll make those modifications to the interface. The changes will appear in the Design tab.";
+      } else {
+        responseText = "I understand your request. I'll update the interface design accordingly. You can see the changes in the Design tab.";
+      }
+
+      const newAiMessage: Message = {
+        id: Date.now().toString(),
+        text: responseText,
+        sender: 'ai',
         timestamp: new Date()
       };
-      
-      setMessages(prev => [...prev, systemMessage]);
+
+      setMessages(prevMessages => [...prevMessages, newAiMessage]);
     }, 1000);
   };
 
@@ -57,48 +77,51 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ title }) => {
     }
   };
 
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4">
         {messages.map((message) => (
-          <div 
-            key={message.id} 
-            className={`mb-4 max-w-[80%] ${
-              message.sender === 'user' ? 'ml-auto' : 'mr-auto'
-            }`}
+          <div
+            key={message.id}
+            className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div 
-              className={`p-3 rounded-lg ${
-                message.sender === 'user' 
-                  ? 'bg-blue-500 text-white rounded-br-none' 
-                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
+            <div
+              className={`max-w-[80%] rounded-lg p-3 ${
+                message.sender === 'user'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-800'
               }`}
             >
-              {message.text}
-            </div>
-            <div 
-              className={`text-xs text-gray-500 mt-1 ${
-                message.sender === 'user' ? 'text-right' : 'text-left'
-              }`}
-            >
-              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <div className="text-sm">{message.text}</div>
+              <div
+                className={`text-xs mt-1 ${
+                  message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                }`}
+              >
+                {formatTime(message.timestamp)}
+              </div>
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       
       <div className="border-t p-3">
         <div className="flex items-center">
           <textarea
-            className="flex-1 border rounded-lg p-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Type a message..."
-            rows={2}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
+            className="flex-1 border rounded-l-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            placeholder="Type your message..."
+            rows={1}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
           />
-          <button 
-            className="ml-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none"
+          <button
+            className="bg-blue-500 text-white p-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={handleSendMessage}
           >
             <Send size={20} />

@@ -23,7 +23,7 @@ const ResizablePanels: React.FC<ResizablePanelsProps> = ({
       sizes={sizes}
       minSize={minSize}
       direction={direction}
-      className={`split ${direction === 'horizontal' ? 'flex' : 'flex-col'} ${className}`}
+      className={`split ${direction === 'horizontal' ? 'flex flex-1' : 'flex-col'} ${className}`}
       gutterSize={4}
       gutterAlign="center"
       dragInterval={1}

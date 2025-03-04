@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Palette, TestTube, Rocket, Settings, BarChart } from 'lucide-react';
+import WorkflowBuilder from './workflow/WorkflowBuilder';
 
 interface TabProps {
   id: string;
@@ -16,47 +17,7 @@ const TabPanel: React.FC = () => {
       id: 'design',
       label: 'Design',
       icon: <Palette size={18} />,
-      content: (
-        <div className="p-4">
-          <h2 className="text-lg font-semibold mb-4">Design Panel</h2>
-          <div className="space-y-4">
-            <div className="border rounded p-3">
-              <h3 className="font-medium mb-2">Color Palette</h3>
-              <div className="flex space-x-2">
-                {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'].map((color) => (
-                  <div 
-                    key={color} 
-                    className="w-8 h-8 rounded-full cursor-pointer border border-gray-300" 
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="border rounded p-3">
-              <h3 className="font-medium mb-2">Typography</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span>Heading</span>
-                  <select className="border rounded p-1 text-sm">
-                    <option>Inter</option>
-                    <option>Roboto</option>
-                    <option>Montserrat</option>
-                  </select>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Body</span>
-                  <select className="border rounded p-1 text-sm">
-                    <option>Inter</option>
-                    <option>Roboto</option>
-                    <option>Open Sans</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      content: <WorkflowBuilder />
     },
     {
       id: 'test',
